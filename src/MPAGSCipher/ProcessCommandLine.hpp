@@ -1,12 +1,18 @@
-#ifndef MPAGSCIPHER_PROCESSCOMMANDLINE_HPP
-#define MPAGSCIPHER_PROCESSCOMMANDLINE_HPP
-
-#include <string>
+#ifndef MPAGSCIPHER_PROCESSCMDLINE_HPP
+#define MPAGSCIPHER_PROCESSCMDLINE_HPP
 #include <vector>
+#include <string>
+using namespace std;
 
-bool processCommandLine(const std::vector<std::string>& cmdLineArgs,
-                        bool& helpRequested, bool& versionRequested,
-                        std::string& inputFile, std::string& outputFile,
-                        std::string& cipherKey, bool& encrypt);
+bool processCmdLine(const vector<string>& args,
+                    bool& helpRequested,
+                    bool& versionRequested,
+                    string& inputFileName,
+                    string& outputFileName,
+                    bool& encrypt,
+                    bool& decrypt,
+                    bool& keySupplied,
+                    int& key);
 
-#endif    // MPAGSCIPHER_PROCESSCOMMANDLINE_HPP
+                
+#endif
