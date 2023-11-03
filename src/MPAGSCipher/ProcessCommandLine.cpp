@@ -1,83 +1,137 @@
 #include "ProcessCommandLine.hpp"
-
 #include <iostream>
-#include <string>
 #include <vector>
+#include <string>
+using namespace std;
 
-bool processCommandLine(const std::vector<std::string>& cmdLineArgs,
-                        bool& helpRequested, bool& versionRequested,
-                        std::string& inputFile, std::string& outputFile,
-                        std::string& cipherKey, bool& encrypt)
-{
-    // Status flag to indicate whether or not the parsing was successful
-    bool processStatus{true};
 
-    // Process the arguments - ignore zeroth element, as we know this to be
-    // the program name and don't need to worry about it
-    const std::size_t nCmdLineArgs{cmdLineArgs.size()};
-    for (std::size_t i{1}; i < nCmdLineArgs; ++i) {
-        if (cmdLineArgs[i] == "-h" || cmdLineArgs[i] == "--help") {
-            // Set the indicator and terminate the loop
+bool processCmdLine(const vector<string>& args,
+                    bool& helpRequested,
+                    bool& versionRequested,
+                    string& inputFileName,
+                    string& outputFileName,
+                    bool& encrypt,
+                    bool& decrypt,
+                    bool& keySupplied,
+                    int& key)
+{   
+    
+    const size_t nCmdLineArgs{args.size()};    
+
+    
+    for (size_t i{1}; i < nCmdLineArgs; ++i) 
+    {
+        if (args[i] == "-h" || args[i] == "--help") {                                                               //help
             helpRequested = true;
             break;
-        } else if (cmdLineArgs[i] == "--version") {
-            // Set the indicator and terminate the loop
+        } else if (args[i] == "--version" || args[i] == "-V") {                                                     //version
             versionRequested = true;
             break;
-        } else if (cmdLineArgs[i] == "-i") {
-            // Handle input file option
-            // Next element is filename unless "-i" is the last argument
-            if (i == nCmdLineArgs - 1) {
-                std::cerr << "[error] -i requires a filename argument"
-                          << std::endl;
-                // Set the flag to indicate the error and terminate the loop
-                processStatus = false;
-                break;
+        } else if (args[i] == "-i") {                                                                               //input
+            if (i == nCmdLineArgs - 1) {                                                                            //No Filename
+                cerr << "\033[31m Error \033[0m  No input file specified after -i \033[34m [Usage: -i <file>]\033[0m "
+                          << endl;
+                return false;
             } else {
-                // Got filename, so assign value and advance past it
-                inputFile = cmdLineArgs[i + 1];
+                inputFileName = args[i + 1];
                 ++i;
             }
-        } else if (cmdLineArgs[i] == "-o") {
-            // Handle output file option
-            // Next element is filename unless "-o" is the last argument
-            if (i == nCmdLineArgs - 1) {
-                std::cerr << "[error] -o requires a filename argument"
-                          << std::endl;
-                // Set the flag to indicate the error and terminate the loop
-                processStatus = false;
-                break;
+        } else if (args[i] == "-o") {                                                                               //output
+          
+            if (i == nCmdLineArgs - 1) {                                                                            //No Filename
+                cerr << "\033[31m Error \033[0m No output file specified after -o \033[34m [Usage: -o <file>]\033[0m "
+                          << endl;
+                return false;
             } else {
-                // Got filename, so assign value and advance past it
-                outputFile = cmdLineArgs[i + 1];
+                
+                outputFileName = args[i + 1];
                 ++i;
             }
-        } else if (cmdLineArgs[i] == "-k") {
-            // Handle cipher key option
-            // Next element is the key unless -k is the last argument
-            if (i == nCmdLineArgs - 1) {
-                std::cerr << "[error] -k requires a positive integer argument"
-                          << std::endl;
-                // Set the flag to indicate the error and terminate the loop
-                processStatus = false;
-                break;
-            } else {
-                // Got the key, so assign the value and advance past it
-                cipherKey = cmdLineArgs[i + 1];
-                ++i;
+        } else if(args[i] == "--encrypt") {                                                                     //encrypt
+            if(!decrypt) {  
+                if(i == nCmdLineArgs - 1) { 
+                    if(keySupplied){
+                        encrypt = true; 
+                    } else {                                                                                   //No Key
+                        cerr << "\033[31m Error \033[0m no key argument "  
+                                << endl;
+                        return false;
+                    }
+                } else if (i != nCmdLineArgs - 1 and !keySupplied){
+                    for(size_t j{i};j<nCmdLineArgs;j++){   
+                        if(args[j]=="--key"){                                                                           //Key
+                            keySupplied = true; 
+                            encrypt = true;
+                            continue;  
+                        } 
+                    }
+                    if(keySupplied){    
+                        encrypt = true;
+                    } else {                                                                                    //No Key
+                        cerr << "\033[31m Error \033[0m no key argument "
+                                << endl;
+                        return false;
+                    }
+                }
+            } else {                                                                                                //Encrypt + Decrypt
+                cerr << "\033[31m Error \033[0m --encrypt and --decrypt cannot not be used at the samee time"
+                          << endl;
+                return false;
             }
-        } else if (cmdLineArgs[i] == "--encrypt") {
-            encrypt = true;
-        } else if (cmdLineArgs[i] == "--decrypt") {
-            encrypt = false;
-        } else {
-            // Have encoutered an unknown flag, output an error message,
-            // set the flag to indicate the error and terminate the loop
-            std::cerr << "[error] unknown argument '" << cmdLineArgs[i]
+        } else if(args[i] == "--decrypt") {                                                                         //Decrypt
+            if(!encrypt) {
+                if(i == nCmdLineArgs - 1) {
+                    if(keySupplied){
+                        decrypt = true;
+                    } else {                                                                                   //No Key
+                        cerr << "\033[31m Error \033[0m no key argument "
+                                << endl;
+                        return false;
+                    }
+                } else {
+                    for(size_t j{i};j<nCmdLineArgs;j++){
+                        if(args[j]=="--key"){                                                                                   //Key
+                            keySupplied = true;
+                            decrypt = true;
+                            continue;
+                        } 
+                    }
+                    if(keySupplied){
+                        decrypt = true;
+                    } else {                                                                                   //No Key
+                        cerr << "\033[31m Error \033[0m no key argument "
+                                << endl;
+                        return false;
+                    }
+                }
+            } else {                                                                                               //Encrypt + Decrypt
+                cerr << "\033[31m Error \033[0m --encrypt and --decrypt cannot not be used at the same time"
+                            << endl;
+                return false;
+            }
+        } else if (args[i] == "--key") {   
+            if (i == nCmdLineArgs - 1) {                                                                            //Key= -ve
+                cerr << "\033[31m Error \033[0m --key cannot take negative integer argument" 
+                          << endl;
+                return false;
+            } else {   
+                if (stoi(args[i+1]) >= 0){  
+                    keySupplied = true; 
+                    key = stoi(args[i+1]);
+                    ++i; 
+                } else {                                                                                          //Key= -ve
+                  cerr << "\033[31m Error \033[0m --key cannot take negative integer argument"
+                            << endl;
+
+                    return false;  
+                }
+            }
+        } else {                                                                                                     // For unknown flags 
+            cerr << "\033[31m Error \033[0m Unknown argument '" << args[i]
                       << "'\n";
-            processStatus = false;
-            break;
+            return false;
         }
     }
-    return processStatus;
+    
+    return true;
 }
