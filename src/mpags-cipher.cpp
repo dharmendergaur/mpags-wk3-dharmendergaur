@@ -5,7 +5,7 @@
 #include <vector>
 #include <fstream>
 #include "TransformChar.hpp"    
-#include "ProcessCmdLine.hpp"   
+#include "ProcessCommandLine.hpp"   
 #include "RunCaesarCipher.hpp"  
 using namespace std;
 
