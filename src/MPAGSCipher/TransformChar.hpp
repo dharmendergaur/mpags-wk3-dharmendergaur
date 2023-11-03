@@ -3,7 +3,6 @@
 
 #include <string>
 
-//! Transliterate char to string
-std::string transformChar(const char inputChar);
+std::string transformChar(const char in);
 
-#endif    // MPAGSCIPHER_TRANSFORMCHAR_HPP
+#endif  

@@ -1,46 +1,54 @@
-#include "RunCaesarCipher.hpp"
-
+#include <iostream>
 #include <string>
 #include <vector>
+#include <cmath>
+#include "RunCaesarCipher.hpp"
+using namespace std;
 
-std::string runCaesarCipher(const std::string& inputText, const std::size_t key,
-                            const bool encrypt)
-{
-    // Create the output string
-    std::string outputText;
+string runCaesarCipher(const string& inputText, const size_t key, const bool encrypt, const bool decrypt){
 
-    // Create the alphabet container
-    const std::vector<char> alphabet = {
-        'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
-        'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'};
-    const std::size_t alphabetSize{alphabet.size()};
+    
+    const vector<char> alphabet = {'A','B','C','D','E','F','G','H','I',
+                                        'J','K','L','M','N','O','R','Q','R',
+                                        'S','T','U','V','W','X','Y','Z'};           //alphabet list
+    string cipherOut{""};
+    char newChar{'a'};
+    int ipos=0, rem=0;
 
-    // Make sure that the key is in the range 0 - 25
-    const std::size_t truncatedKey{key % alphabetSize};
+    for(size_t i{0}; i < inputText.length();i++){
 
-    // Loop over the input text
-    char processedChar{'x'};
-    for (const auto& origChar : inputText) {
-        // For each character in the input text, find the corresponding position in
-        // the alphabet by using an indexed loop over the alphabet container
-        for (size_t i{0}; i < alphabetSize; ++i) {
-            if (origChar == alphabet[i]) {
-                // Apply the appropriate shift (depending on whether we're encrypting
-                // or decrypting) and determine the new character
-                // Can then break out of the loop over the alphabet
-                if (encrypt) {
-                    processedChar = alphabet[(i + truncatedKey) % alphabetSize];
-                } else {
-                    processedChar = alphabet[(i + alphabetSize - truncatedKey) %
-                                             alphabetSize];
-                }
-                break;
-            }
+        for(size_t j{0}; j < alphabet.size();j++){ 
+            if (inputText[i]==alphabet[j]){ 
+                ipos = j;   
+                continue;
+            } 
         }
 
-        // Add the new character to the output text
-        outputText += processedChar;
-    }
+        if(encrypt){                                    //encrypt
+            ipos = ipos + key;  
+            if (ipos <= 25 and ipos >= 0){  
+                newChar = alphabet[ipos];  
+                cipherOut += newChar;   
+            } else if(ipos > 25) {  
+                rem = ipos % 26;  
+                ipos = rem;   
+                newChar = alphabet[ipos];   
+                cipherOut += newChar;      
+            }
+        } else if(decrypt) {                            //decrypt 
+            ipos = ipos - key;  
 
-    return outputText;
+            if (ipos <= 25 and ipos >= 0){  
+                newChar = alphabet[ipos];
+                cipherOut += newChar;
+            } else if(ipos < 0) {   
+                ipos = -ipos;   
+                rem = ipos % 26;  
+                ipos = 26 - rem;  
+                newChar = alphabet[ipos];
+                cipherOut += newChar;
+            } 
+        }
+    }
+    return cipherOut;      
 }
